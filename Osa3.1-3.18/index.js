@@ -79,25 +79,10 @@ app.delete('/api/persons/:id', (request, response) => {
         .catch(error => next(error))
 })
 
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', (request, response, next) => {
     const id = Math.ceil(Math.random()*10000)
     const person = request.body
 
-    if (!person.name){
-        response.status(400)
-        response.send({ error: 'name is required' }).end()
-        return    
-    }
-    else if (!person.number){
-        response.status(400)
-        response.send({ error: 'number is required' }).end()
-        return 
-    }
-    else if (persons.find(pers => pers.name === person.name)){
-        response.status(400)
-        response.send({ error: 'name must be unique' }).end()
-        return 
-    }
 
     const newPerson = new Contact({
         name: person.name,
@@ -105,9 +90,11 @@ app.post('/api/persons', (request, response) => {
         id: id,
     })
 
-    newPerson.save().then(savedPerson => {
-        response.json(savedPerson)
-    })
+    newPerson.save()
+        .then(savedPerson => {
+            response.json(savedPerson)
+        })
+        .catch(error => next(error))
 })
 
 const unkownEndpoint = (request, response) => {
